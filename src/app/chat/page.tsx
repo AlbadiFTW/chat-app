@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { io, Socket } from "socket.io-client";
@@ -25,7 +25,7 @@ type Room = {
   _count: { members: number; messages: number };
 };
 
-export default function ChatPage() {
+function ChatPageClient() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -675,5 +675,19 @@ export default function ChatPage() {
         </div>
       )}
     </>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0b0b0f] flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <ChatPageClient />
+    </Suspense>
   );
 }
