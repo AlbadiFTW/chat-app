@@ -159,12 +159,15 @@ function ChatPageClient() {
         setJoinError("");
         setPendingRoom(room);
         setJoinPassword("");
-      } else if (errorMessage !== "Already a member") {
+        setLoadingRoomId(null);
+        return;
+      }
+      if (errorMessage !== "Already a member") {
         setJoinError(errorMessage);
         setPendingRoom(room);
+        setLoadingRoomId(null);
+        return;
       }
-      setLoadingRoomId(null);
-      return;
     }
 
     setActiveRoom(room);
@@ -663,6 +666,12 @@ function ChatPageClient() {
                 type="password"
                 value={joinPassword}
                 onChange={e => setJoinPassword(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    joinAndOpenRoom(pendingRoom, { password: joinPassword });
+                  }
+                }}
                 placeholder="Password"
                 className="bg-black/40 border-white/10 text-white placeholder:text-white/40"
               />
