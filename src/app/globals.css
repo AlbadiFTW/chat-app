@@ -138,4 +138,48 @@
     animation: bounce 1s infinite;
     animation-delay: 300ms;
   }
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .landing-noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+  .animate-fade-up {
+    animation: fade-up 0.8s ease-out both;
+  }
+  .animate-fade-up-delay-1 {
+    animation: fade-up 0.8s ease-out 0.15s both;
+  }
+  .animate-fade-up-delay-2 {
+    animation: fade-up 0.8s ease-out 0.3s both;
+  }
+  .animate-float-slow {
+    animation: float 8s ease-in-out infinite;
+  }
+  .animate-float-slower {
+    animation: float 12s ease-in-out infinite;
+  }
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }

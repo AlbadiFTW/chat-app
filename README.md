@@ -19,12 +19,15 @@ A real-time chat application built with Next.js, featuring user authentication, 
 ## Features
 
 - **User Authentication**: Secure login and registration with NextAuth.js
-- **Channel-Based Messaging**: Create and manage chat channels
+- **Channel-Based Messaging**: Create and manage chat channels with room ownership
+- **Room Security**: Optional channel passwords with secure join flow
+- **Invite Links**: Owner-generated invite links with expiration
+- **Channel Management**: Owner-only delete controls
 - **Real-time Communication**: WebSocket-based live updates using Socket.IO
 - **Typing Indicators**: See when other users are typing
 - **User Sessions**: Persistent login sessions with JWT tokens
 - **Responsive Design**: Modern UI built with Tailwind CSS
-- **Dark Theme**: Violet-themed dark interface for better user experience
+- **Premium Dark UI**: High-contrast interface with modern landing page
 
 ## Tech Stack
 
@@ -65,7 +68,7 @@ chat-app/
 │   │   ├── chat/
 │   │   │   ├── page.tsx             # Main chat interface
 │   │   │   └── layout.tsx           # Chat layout with providers
-│   │   ├── page.tsx                 # Home page (redirects to /chat)
+│   │   ├── page.tsx                 # Landing page
 │   │   ├── layout.tsx               # Root layout
 │   │   └── globals.css              # Global styles and utilities
 │   ├── components/
@@ -153,10 +156,10 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    - Register a new account at `/register`
    - Login with credentials at `/login`
    - Access chat interface at `/chat` (protected route)
-   - Create channels and send messages
+   - Create channels (optional passwords) and send messages
+   - Generate invite links for channels you own
+   - Delete channels you own
    - See real-time typing indicators
-
-The app automatically redirects to `/chat` from the home page when authenticated.
 
 ## Building & Deployment
 
@@ -216,10 +219,11 @@ The app displays when other users are typing in the current channel using Socket
 
 ```typescript
 // Emitted when user is typing
-socket.emit('typing', { roomId, userId, userName })
+socket.emit('typing', { roomId })
 
 // Received to display typing status
-socket.on('typing', (typingUser) => { /* update state */ })
+socket.on('user_typing', ({ userId, name }) => { /* update state */ })
+socket.on('user_stop_typing', ({ userId }) => { /* update state */ })
 ```
 
 ### Message Updates
@@ -253,9 +257,13 @@ Response: { user: { id, name, email }, token: string }
 #### Chat Messages
 
 ```
-GET /api/chat/messages?roomId=<id>    # Get message history
-GET /api/chat/rooms                   # Get user's channels
-POST /api/chat/rooms                  # Create new channel
+GET /api/rooms/:roomId/messages       # Get message history
+GET /api/rooms                        # Get all channels
+POST /api/rooms                       # Create new channel (optional password)
+POST /api/rooms/:roomId/join          # Join channel (password/invite)
+POST /api/rooms/:roomId/invites       # Create invite link (owner only)
+POST /api/rooms/invites/:token/join   # Join via invite link
+DELETE /api/rooms/:roomId             # Delete channel (owner only)
 ```
 
 ### Configuration
