@@ -103,9 +103,11 @@ function ChatPageClient() {
     if (stored) setFavorites(JSON.parse(stored));
   }, []);
 
+
   useEffect(() => {
     localStorage.setItem("chatapp:favorites", JSON.stringify(favorites));
   }, [favorites]);
+
 
   const inviteToken = searchParams.get("invite");
 
@@ -133,12 +135,6 @@ function ChatPageClient() {
     options: { password?: string; inviteToken?: string } = {}
   ) {
     if (!session?.token) return;
-    if (room.hasPassword && !options.password && !options.inviteToken) {
-      setPendingRoom(room);
-      setJoinPassword("");
-      setJoinError("");
-      return;
-    }
     setLoadingRoomId(room.id);
     activeRoomIdRef.current = room.id;
     const cached = messagesByRoom[room.id];
@@ -158,15 +154,23 @@ function ChatPageClient() {
 
     if (!joinRes.ok) {
       const data = await joinRes.json().catch(() => ({}));
-      if (data?.error !== "Already a member") {
-        setJoinError(data?.error || "Unable to join room");
+      const errorMessage = data?.error || "Unable to join room";
+      if (errorMessage === "Password required") {
+        setJoinError("");
         setPendingRoom(room);
-        setLoadingRoomId(null);
-        return;
+        setJoinPassword("");
+      } else if (errorMessage !== "Already a member") {
+        setJoinError(errorMessage);
+        setPendingRoom(room);
       }
+      setLoadingRoomId(null);
+      return;
     }
 
     setActiveRoom(room);
+    setPendingRoom(null);
+    setJoinPassword("");
+    setJoinError("");
     socket?.emit("join_room", room.id);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rooms/${room.id}/messages`, {
