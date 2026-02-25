@@ -14,14 +14,23 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+    setError("");
     const form = new FormData(e.currentTarget);
-    const result = await signIn("credentials", {
-      email: form.get("email"),
-      password: form.get("password"),
-      redirect: false,
-    });
-    if (result?.error) { setError("Invalid email or password"); setLoading(false); }
-    else window.location.href = "/chat";
+    try {
+      const result = await signIn("credentials", {
+        email: form.get("email"),
+        password: form.get("password"),
+        callbackUrl: "/chat",
+        redirect: true,
+      });
+      if (result?.error) {
+        setError(result.error);
+        setLoading(false);
+      }
+    } catch {
+      setError("Unable to sign in");
+      setLoading(false);
+    }
   }
 
   return (
